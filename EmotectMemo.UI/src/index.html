@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        import Alpine from 'alpinejs'
+        window.Alpine = Alpine
+        Alpine.start()
+    </script>
+    <title>tmp</title>
+</head>
+<body>
+    <h1>Site</h1>
+    <div x-data="{ open: false }">
+        <button @click="open = ! open">Toggle Content</button>
+     
+        <div x-show="open">
+            Content...
+        </div>
+    </div>
+</body>
+</html>

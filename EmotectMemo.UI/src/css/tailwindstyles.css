@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .button{
+        @apply w-36 h-12 cursor-pointer hover:rounded-none transition-all delay-75 duration-500
+        flex-row rounded-lg border 
+        items-center content-stretch p-4 justify-evenly text-center;  
+    }
+    .primary-button {
+        @apply button text-white bg-primary
+    }
+  }

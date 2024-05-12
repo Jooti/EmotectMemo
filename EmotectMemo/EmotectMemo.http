@@ -1,0 +1,11 @@
+@EmotectMemo_HostAddress = http://localhost:5124
+
+# GET {{EmotectMemo_HostAddress}}/
+# Accept: application/json
+
+# ###
+
+GET {{EmotectMemo_HostAddress}}/someKeyForData
+Accept: application/json
+
+###

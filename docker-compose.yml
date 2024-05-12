@@ -1,0 +1,43 @@
+version: '3.4'
+
+services:
+  nosql:
+    ports:
+    - '27017:27017'
+    container_name: mongodb
+    restart: always
+    logging:
+        options:
+            max-size: 1g
+    environment:
+        - MONGO_INITDB_ROOT_USERNAME=madmin
+        - MONGO_INITDB_ROOT_PASSWORD=misd43dqm98daj9fa93ds983
+    volumes:
+        - mongodb_data:/data/db
+    image: mongo
+
+  emotectmemo:
+    image: ${DOCKER_REGISTRY-}emotectmemo
+    container_name: emotectmemo
+    build:
+      context: .
+      dockerfile: EmotectMemo/Dockerfile
+    environment:
+      DATABASE_NAME: emotectdb
+      MONGODB_URL: mongodb://madmin:misd43dqm98daj9fa93ds983@mongodb:27017/myDb?authSource=admin
+    depends_on:
+      - nosql
+
+  emotectmemosite:
+    ports:
+    - '9090:80'
+    image: ${DOCKER_REGISTRY-}emotectmemosite
+    container_name: emotectmemo-site
+    build:
+      context: .
+      dockerfile: EmotectMemo.UI/Dockerfile
+    environment:
+      EMOTECTAPI: https://testapi.com
+
+volumes:
+  mongodb_data:
