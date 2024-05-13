@@ -5,7 +5,6 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "emotectmemo": "StartDebugging",
-        "emotectmemoatest": "StartDebugging"
       }
     }
   }

@@ -6,9 +6,23 @@
     .button{
         @apply w-36 h-12 cursor-pointer hover:rounded-none transition-all delay-75 duration-500
         flex-row rounded-lg border 
-        items-center content-stretch p-4 justify-evenly text-center;  
+        items-center content-stretch p-4 justify-evenly text-center
+        disabled:cursor-default disabled:hover:rounded-lg;  
     }
     .primary-button {
-        @apply button text-white bg-primary
+        @apply button text-emotral-0 bg-emotral-100  disabled:bg-emotral-50 disabled:text-emotral-20;
+    }
+
+    .card{
+        @apply w-full bg-emotral-0 border border-emotral-10 flex flex-col
+                    gap-6 pt-6 pb-6 pl-3 pr-3 rounded-lg items-center;
+    }
+
+    .text{
+        @apply flex flex-col items-center content-stretch gap-2;
+    }
+
+    .text-start{
+        @apply text justify-start;
     }
   }

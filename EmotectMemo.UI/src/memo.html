@@ -10,39 +10,73 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
     </style>
+    <script>
+        const getMemos = ()=>{
+            return {
+                key: "",
+                content: [],
+                isLoading: true,
+                init() {
+                    // get gists
+                    fetch(`http://localhost:62000${window.location.pathname}`)
+                        .then(response => response.json())
+                        .then(response => {
+                            this.content = response?.content??null;
+                            this.isLoading = false;
+                        });
+                }
+            };
+        }
+    </script>
     <title>EmotectMemo</title>
 </head>
-<body class=" bg-zinc-50 flex flex-col items-center w-screen h-dvh font-body text-xs">
+<body class=" bg-emotral-2 flex flex-col items-center w-screen h-dvh font-body text-xs">
     <div class="flex flex-row flex-nowrap grid-cols-1 grid-rows-1 
         items-start content-stretch justify-start justify-items-start 
         pt-3 pb-3 min-w-80 h-dvh w-full">
 
-    <div class="flex flex-col flex-nowrap items-center content-stretch justify-between 
+    <div x-data="getMemos()" x-init="init()" class="flex flex-col flex-nowrap items-center content-stretch justify-between 
         gap-16 self-center w-full ml-3 mr-3">
         <!-- group: Illustation_Create -->
-        <div>
-            <img src="img/Illustation_Createwand.svg" width="164" height="164"/>
-        </div>
-        
-        <!-- frame: Body -->
-        <div class="w-full bg-white border border-neutral-180 flex flex-col
-         gap-6 pt-6 pb-6 pl-3 pr-3 rounded-lg items-center">
-          <!-- frame: Content -->
-          <div class="flex flex-col items-center content-stretch gap-2">
-            <!-- text: Title -->
-            <h2 class="flex flex-row font-semibold">
-                It's all yours!
-            </h2>
-            <!-- text: Description -->
-            <p class="flex flex-row">
-                Set the emoword and own it.
-            </p>
-          </div>
-            <!-- frame: Button / Light / Primary -->
-            <button class="primary-button">
-                Set emoword
-            </button>
-        </div>
+        <template x-if="isLoading">
+            <div>Loading...</div>
+        </template>
+        <template x-if="!isLoading">
+            <div>
+                <img src="img/Illustation_Createwand.svg" width="164" height="164" />
+            </div>
+        </template>
+        <template x-if="!isLoading && content == null">
+            <div class="card">
+                <div class="text-start">
+                    <h1 class="flex flex-row font-semibold">
+                        Emotect Memo
+                    </h1>            
+                    <p class="flex flex-row">
+                        It's an empty or a new EmotectMemo page, the decision is yours to make. 
+                    </p>
+                    <p class="flex flex-row">
+                        EmotectMemo is a minimal end to end encrypted text sharing app, protected by Emoji passwords. Set the Emoword and own it.
+                    </p>
+                </div>
+                <div class="flex flex-col gap-2 justify-start content-stretch items-start w-full h-auto">
+                    <label class="flex flex-row text-emotral-100" for="emoword">
+                        Make your Emoword
+                    </label>
+                    <input class="w-full flex flex-row justify-center p-4 
+                        gap-1 stroke-emotral-10 border rounded-lg bg-emotral-0
+                        placeholder:text-center placeholder:text-emotral-50"
+                        type="text" name="emoword" placeholder="Example: 🥲🍁☃️😌">
+                    </input>
+                </div>
+                <button disabled="true" class="primary-button">
+                    Set Emoword
+                </button>
+            </div>
+        </template>
+        <template x-if="!isLoading && content != null">
+            <strong x-text="content"></strong>
+        </template>
       </div>
 </div>  
 </body>

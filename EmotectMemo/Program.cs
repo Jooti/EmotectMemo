@@ -4,9 +4,22 @@ using MongoDB.Driver;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateSlimBuilder(args);
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+                          policy =>
+                          {
+                              policy.WithOrigins("http://localhost:9090",
+                                                  "http://emotect.microj.ir")
+                                                  .AllowAnyHeader()
+                                                  .AllowAnyMethod();
+                          });
 });
 
 builder.Services.AddSingleton<IMongoClient>(provider =>
@@ -26,7 +39,9 @@ builder.Services.AddSingleton<IMongoDatabase>(provider =>
 });
 
 
+
 var app = builder.Build();
+app.UseCors();
 
 //todo: mongo index, refactor needed
 var mongodb = app.Services.GetService<IMongoDatabase>()!;
