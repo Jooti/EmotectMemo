@@ -4,18 +4,30 @@
 
 @layer components {
     .button{
-        @apply w-36 h-12 cursor-pointer hover:rounded-none transition-all delay-75 duration-500
-        flex-row rounded-lg border 
+        @apply w-36 h-12 cursor-pointer hover:rounded-none delay-75 duration-500
+        flex-row rounded-lg 
         items-center content-stretch p-4 justify-evenly text-center
         disabled:cursor-default disabled:hover:rounded-lg;  
     }
     .primary-button {
         @apply button text-emotral-0 bg-emotral-100  disabled:bg-emotral-50 disabled:text-emotral-20;
     }
+    .secondary-button{
+        @apply button border text-emotral-100 border-emotral-100 bg-emotral-0
+        dark:text-emotral-0 dark:border-emotral-5 dark:bg-emotral-90
+        disabled:bg-emotral-50 disabled:text-emotral-20;
+    }
 
+    .emoji-button{
+        @apply flex flex-col-reverse w-8 h-8 bg-emotral-10 
+            dark:bg-emotral-70 rounded items-center 
+            content-stretch grayscale justify-center text-lg 
+            active:bg-emotral-40 active:dark:bg-emotral-40 
+            delay-75 duration-500 hover:rounded-none
+    }
     .card{
         @apply w-full bg-emotral-0 border border-emotral-10 flex flex-col
-                    gap-6 pt-6 pb-6 pl-3 pr-3 rounded-lg items-center;
+                    gap-6 pt-6 pb-6 pl-3 pr-3 rounded-lg items-center dark:bg-emotral-90 dark:border-emotral-80;
     }
 
     .text{
@@ -24,5 +36,17 @@
 
     .text-start{
         @apply text justify-start;
+    }
+    .over-input-label{
+        @apply flex flex-col gap-2 justify-start content-stretch items-start w-full h-auto;
+    }
+    .emoword-text{
+        @apply w-full flex flex-row justify-center p-4 
+        gap-1 border-emotral-10 border rounded-lg bg-emotral-0 dark:border-emotral-80 dark:bg-emotral-70
+        placeholder:opacity-50;
+    }
+
+    .justify-between-row{
+        @apply flex flex-row-reverse flex-nowrap content-stretch justify-between w-full;
     }
   }

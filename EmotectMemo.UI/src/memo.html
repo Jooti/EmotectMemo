@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html  x-data="theme()" x-init="init()" :class="mode"  lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,8 +14,10 @@
         const getMemos = ()=>{
             return {
                 key: "",
-                content: [],
+                content: null,
                 isLoading: true,
+                emoword: "",
+                decrypted: false,
                 init() {
                     // get gists
                     fetch(`http://localhost:62000${window.location.pathname}`)
@@ -23,35 +25,65 @@
                         .then(response => {
                             this.content = response?.content??null;
                             this.isLoading = false;
+                            this.decrypted = true;
                         });
+                },
+                get isNewPage(){
+                    return !this.isLoading && this.content == null;
+                },
+                get canShowContent(){
+                    if (!this.isLoading && this.content != null && this.decrypted);
                 }
             };
+        }
+
+        const darkModeLocalStorageKey = 'darkMode';
+        const theme = ()=>{
+            return {
+                darkMode: false,
+                init(){
+                    this.darkMode=localStorage.getItem(darkModeLocalStorageKey)=='true';
+                },
+                get mode(){
+                    return this.darkMode?'dark':'';
+                },
+                get otherModeEmoji(){
+                    return this.darkMode?'☀️':'🌙'
+                },
+                toggleMode(){
+                    this.darkMode = !this.darkMode;
+                    localStorage.setItem(darkModeLocalStorageKey, this.darkMode);
+                }
+            }
         }
     </script>
     <title>EmotectMemo</title>
 </head>
-<body class=" bg-emotral-2 flex flex-col items-center w-screen h-dvh font-body text-xs">
-    <div class="flex flex-row flex-nowrap grid-cols-1 grid-rows-1 
-        items-start content-stretch justify-start justify-items-start 
-        pt-3 pb-3 min-w-80 h-dvh w-full">
+<body class="transition-all duration-200 dark:bg-emotral-100 bg-emotral-2 flex flex-col items-center w-screen h-dvh font-body text-xs  text-emotral-100 dark:text-emotral-2 ">
+    <div class="flex flex-col flex-nowrap grid-cols-1 grid-rows-1 
+        items-end content-stretch justify-start justify-items-start 
+        min-w-80 h-dvh w-full gap-4">
 
-    <div x-data="getMemos()" x-init="init()" class="flex flex-col flex-nowrap items-center content-stretch justify-between 
-        gap-16 self-center w-full ml-3 mr-3">
+    <div class="justify-between-row items-center gap-4 pr-3 pl-3 pt-4 pb-4">
+        <button class="emoji-button" @click="toggleMode()" x-text="otherModeEmoji">🌘</button>
+        <h1 class="flex-shrink-0 font-semibold text-sm">
+            Emotect Memo
+        </h1>         
+    </div>
+    <div x-data="getMemos()" x-init="init()" class="flex flex-col flex-nowrap items-center content-stretch justify-end 
+        gap-8 self-center w-full pl-3 pr-3">
         <!-- group: Illustation_Create -->
         <template x-if="isLoading">
             <div>Loading...</div>
         </template>
         <template x-if="!isLoading">
             <div>
-                <img src="img/Illustation_Createwand.svg" width="164" height="164" />
+                <img :src="darkMode?'img/wand-dark.svg':'img/wand.svg'" width="164" height="164" />
             </div>
         </template>
-        <template x-if="!isLoading && content == null">
-            <div class="card">
-                <div class="text-start">
-                    <h1 class="flex flex-row font-semibold">
-                        Emotect Memo
-                    </h1>            
+        <template x-if="isNewPage">
+            <div x-data="{step: 'emoword'}" class="card">
+                <div class="text-start" x-show="step == 'emoword'">   
                     <p class="flex flex-row">
                         It's an empty or a new EmotectMemo page, the decision is yours to make. 
                     </p>
@@ -59,22 +91,42 @@
                         EmotectMemo is a minimal end to end encrypted text sharing app, protected by Emoji passwords. Set the Emoword and own it.
                     </p>
                 </div>
-                <div class="flex flex-col gap-2 justify-start content-stretch items-start w-full h-auto">
-                    <label class="flex flex-row text-emotral-100" for="emoword">
+                <div class="over-input-label" x-show="step == 'emoword'">
+                    <label class="flex flex-row" for="emoword">
                         Make your Emoword
                     </label>
-                    <input class="w-full flex flex-row justify-center p-4 
-                        gap-1 stroke-emotral-10 border rounded-lg bg-emotral-0
-                        placeholder:text-center placeholder:text-emotral-50"
-                        type="text" name="emoword" placeholder="Example: 🥲🍁☃️😌">
+                    <input x-init="$nextTick(() => $el.focus())" class="emoword-text"
+                        type="text" name="emoword" x-model="emoword" placeholder="Example: 🥲🍁☃️😌">
                     </input>
                 </div>
-                <button disabled="true" class="primary-button">
+                <button :disabled="emoword==''" class="primary-button" @click="step='confirm'" x-show="step == 'emoword'">
                     Set Emoword
                 </button>
+
+                <div class="text-start" x-show="step == 'confirm'">   
+                    <h2 class="flex flex-row font-semibold">
+                        Remember! Remember!
+                    </h2>
+                    <p class="flex flex-row">
+                        Once the Emoword is made for this page, it would be used as an end to end encryption key and you would be the only one who knows it. Remember it. There would be no recovery available.
+                    </p>
+                </div>
+                <div class="flex row items-center content-stretch justify-between gap-1 h-auto w-full" x-show="step == 'confirm'">
+                    <label class="flex flex-row items-start content-stretch gap-1" for="copyEmoji" x-text="`Current Emoword: ${emoword}`"></label>
+                    <button name="copyEmoji" class="emoji-button" @click="navigator.clipboard.writeText(emoword);">📑</button>
+                </div>
+                <div class="justify-between-row gap-6 items-start" x-show="step == 'confirm'">
+                    <button class="primary-button" >
+                        Looks Good
+                    </button>
+                    <button class="secondary-button" @click="step='emoword'">
+                        Change Emoword
+                    </button>
+                </div>
+
             </div>
         </template>
-        <template x-if="!isLoading && content != null">
+        <template x-if="canShowContent">
             <strong x-text="content"></strong>
         </template>
       </div>
