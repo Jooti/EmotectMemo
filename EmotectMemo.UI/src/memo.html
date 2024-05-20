@@ -11,28 +11,81 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
     </style>
     <script>
-        const getMemos = ()=>{
+        const baseURL =`http://localhost:62000${window.location.pathname}`;
+        const welcomeMessage = 'I\'ll remember what you said in a protected way. You remember the Emoword, the only key. Remember me.'
+        const Memos = ()=>{
+            const emoCrypt = new Crypto();
             return {
                 key: "",
-                content: null,
+                content: [],
+                hasContent: false,
                 isLoading: true,
                 emoword: "",
                 decrypted: false,
                 init() {
-                    // get gists
-                    fetch(`http://localhost:62000${window.location.pathname}`)
+                    fetch(`${baseURL}/exists`)
                         .then(response => response.json())
                         .then(response => {
-                            this.content = response?.content??null;
                             this.isLoading = false;
-                            this.decrypted = true;
+                            this.hasContent = response.exists;
+                            this.key = window.location.pathname;
+                        })
+                        .catch((exception) => {
+                            console.log(exception);
                         });
                 },
                 get isNewPage(){
-                    return !this.isLoading && this.content == null;
+                    return !this.isLoading && !this.hasContent;
                 },
                 get canShowContent(){
-                    if (!this.isLoading && this.content != null && this.decrypted);
+                    return !this.isLoading && this.content != null && this.decrypted;
+                },
+                async post(memo) {
+                    if (!memo)
+                    {
+                        memo = welcomeMessage;
+                    }
+                    await emoCrypt.setPassword(this.emoword);
+                    (async () => {
+                        const rawResponse = await fetch(baseURL, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Secret-Key' : emoCrypt.secretKey
+                            },
+                            body: JSON.stringify({ body: await emoCrypt.encrypt(memo) })
+                        });
+                        const response = await rawResponse;
+                        if (response){
+                            await this.getPage();
+                        }
+                        console.log(response);
+                    })();
+                },
+                async getPage(){
+                    await emoCrypt.setPassword(this.emoword);
+                    (async () => {
+                        const rawResponse = await fetch(baseURL, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Secret-Key' : emoCrypt.secretKey
+                            }});
+                        const response = await rawResponse.json();
+                        for (let i = 0; i < response.content.length; i++) {
+                            debugger;
+                            const c = response.content[i]
+                            this.content = [];
+                            this.content.push({
+                                id: c.id,
+                                body: await emoCrypt.decrypt(c.body)
+                            });
+                        }
+                        this.decrypted = true;
+                        console.log(response);
+                    })();
                 }
             };
         }
@@ -56,6 +109,109 @@
                 }
             }
         }
+
+        const Crypto = class {
+            #password;
+            #encryptionKey;
+            #secretKey;
+            constructor(){
+            }
+
+            static async Create(password)
+            {
+                const crypto = new Crypto();
+                await crypto.setPassword(password);
+                return crypto;
+            }
+
+            async setPassword(password){
+                if (password != this.#password)
+                {
+                    this.#password = password;
+                    this.#encryptionKey = await this.createEncryptionKey(this.#password);
+                    this.#secretKey = await this.createSecretKey(this.#encryptionKey);
+                }
+            }
+
+            get secretKey(){
+                return this.#secretKey;
+            }
+
+            encode(text){
+                const encoder = new TextEncoder();
+                return encoder.encode(text);
+            }
+            async digestSHA256(message){
+                const data = this.encode(message);
+                return await window.crypto.subtle.digest("SHA-256", data);
+            }
+
+            async createEncryptionKey(password){
+                return await this.digestSHA256(password);
+            }
+
+            async createSecretKey(encryptionKey){
+                //We need a unique key to set as password in the server 
+                //  to make sure the user has correct Emoword and to 
+                //  be sure that the Emoword is not retrievable having
+                //  this key.
+                //Therefor SHA of Half of SHA string of the Emoword is used as the key.
+                const keybase = this.arrayBufferToString(encryptionKey);
+                const halfOfKey = keybase.substring(0, Math.floor(keybase.length/2)+1);
+                const secretKeyBuff = await this.digestSHA256(halfOfKey);
+                return btoa(this.arrayBufferToString(secretKeyBuff));
+            }
+
+            arrayBufferToString(arraybuffer){
+                const hashArray = Array.from(new Uint8Array(arraybuffer));
+                return hashArray.map(byte => String.fromCharCode(byte)).join('');
+            }
+            stringToUint8Array(text){
+                return new Uint8Array(Array.from(text).map(ch => ch.charCodeAt(0))); 
+            }
+
+            async encrypt(plainText){
+                const encoded = this.encode(plainText);
+
+                const iv = crypto.getRandomValues(new Uint8Array(12));  
+                const algorithm = { name: "AES-GCM", iv: iv };
+                const key = await crypto.subtle.importKey('raw', 
+                    this.#encryptionKey, algorithm, false, ['encrypt']);
+
+                    const encrypted = await window.crypto.subtle.encrypt(
+                    algorithm,
+                    key,
+                    encoded,
+                );
+
+                const encryptedMessage =btoa(
+                    this.arrayBufferToString(iv) + 
+                    this.arrayBufferToString(encrypted));
+                debugger;
+                return encryptedMessage;
+            }
+
+            async decrypt(encryptedMessage){
+                const encrypted = atob(encryptedMessage);
+                const iv = this.stringToUint8Array(encrypted.slice(0,12));
+                const message = this.stringToUint8Array(encrypted.slice(12));
+
+                const algorithm = { name: "AES-GCM", iv: iv };
+                const key = await crypto.subtle.importKey('raw', 
+                    this.#encryptionKey, algorithm, false, ['decrypt']);
+
+                try {
+                    const plainBuff = await crypto.subtle.decrypt(
+                        algorithm, 
+                        key, 
+                        message);  
+                    return this.arrayBufferToString(plainBuff);
+                } catch (error) {
+                    return "Failed to decrypt message."
+                }
+            }
+        }
+
     </script>
     <title>EmotectMemo</title>
 </head>
@@ -70,7 +226,7 @@
             Emotect Memo
         </h1>         
     </div>
-    <div x-data="getMemos()" x-init="init()" class="flex flex-col flex-nowrap items-center content-stretch justify-end 
+    <div x-data="Memos()" x-init="init()" class="flex flex-col flex-nowrap items-center content-stretch justify-end 
         gap-8 self-center w-full pl-3 pr-3">
         <!-- group: Illustation_Create -->
         <template x-if="isLoading">
@@ -116,7 +272,7 @@
                     <button name="copyEmoji" class="emoji-button" @click="navigator.clipboard.writeText(emoword);">📑</button>
                 </div>
                 <div class="justify-between-row gap-6 items-start" x-show="step == 'confirm'">
-                    <button class="primary-button" >
+                    <button class="primary-button" @click="post()">
                         Looks Good
                     </button>
                     <button class="secondary-button" @click="step='emoword'">

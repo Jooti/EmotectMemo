@@ -11,8 +11,9 @@ namespace EmotectMemo.Models
         public string? Id { get; set; }
 
         public string Key { get; set; } = null!;
+        public string SecretKey { get; set; } = null!;
 
-        public string Content { get; set; } = null!;
+        public MemoContent[] Content { get; set; } = null!;
 
     }
 }

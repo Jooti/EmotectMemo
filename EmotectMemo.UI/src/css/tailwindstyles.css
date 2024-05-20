@@ -4,13 +4,15 @@
 
 @layer components {
     .button{
-        @apply w-36 h-12 cursor-pointer hover:rounded-none delay-75 duration-500
+        @apply min-w-36 max-w-44 h-12 cursor-pointer hover:rounded-none delay-75 duration-500
         flex-row rounded-lg 
         items-center content-stretch p-4 justify-evenly text-center
         disabled:cursor-default disabled:hover:rounded-lg;  
     }
     .primary-button {
-        @apply button text-emotral-0 bg-emotral-100  disabled:bg-emotral-50 disabled:text-emotral-20;
+        @apply button text-emotral-0 bg-emotral-100  
+        dark:text-emotral-100 dark:bg-emotral-5  
+        disabled:bg-emotral-50 disabled:text-emotral-20;
     }
     .secondary-button{
         @apply button border text-emotral-100 border-emotral-100 bg-emotral-0
@@ -19,7 +21,7 @@
     }
 
     .emoji-button{
-        @apply flex flex-col-reverse w-8 h-8 bg-emotral-10 
+        @apply flex flex-col-reverse w-10 h-10 bg-emotral-10 
             dark:bg-emotral-70 rounded items-center 
             content-stretch grayscale justify-center text-lg 
             active:bg-emotral-40 active:dark:bg-emotral-40 
