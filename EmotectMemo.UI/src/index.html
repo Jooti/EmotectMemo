@@ -16,8 +16,9 @@
     <div x-data="{ open: false }">
         <button @click="open = ! open">Toggle Content</button>
      
-        <div x-show="open">
+        <div x-show="open" x-data="{ content: '<h1 x-text='open'> x </h1>'}">
             Content...
+            <div x-html="content"></div>
         </div>
     </div>
 </body>

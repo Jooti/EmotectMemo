@@ -153,14 +153,26 @@ app.MapPost("/{key}", async (IMongoDatabase db,
             await memoCollection.InsertOneAsync(new Memo() { 
                 Key = key, SecretKey = secretKey, Content = 
                 [new MemoContent(){ Body = memoDto.Body}] });
-            return true;
+            return Results.Created();
         }
         catch(Exception ex)
         {
             logger.LogError(ex, $"Post called key:{key}, secret key: {secretKey}");
         }
     }
-    return false;
+    else
+    {
+        if (memo.SecretKey != secretKey)
+        {
+            return Results.Unauthorized();
+        }
+        var update = Builders<Memo>.Update.Push<MemoContent>(m => m.Content,
+                    new MemoContent() { Body = memoDto.Body });
+        var result = await memoCollection
+            .FindOneAndUpdateAsync(x => x.Key == key, update);
+        return Results.Created();
+    }
+    return Results.BadRequest();
 });
 
 

@@ -2,7 +2,7 @@ FROM node:22 as build
 WORKDIR /node
 COPY EmotectMemo.UI/package.json ./
 RUN npm install
-RUN npx update-browserslist-db@latest
+#RUN npx update-browserslist-db@latest
 COPY "EmotectMemo.UI/src" ./src
 COPY EmotectMemo.UI/tailwind.config.js ./
 RUN npx tailwindcss -i ./src/css/tailwindstyles.css -o ./src/css/styles.css
