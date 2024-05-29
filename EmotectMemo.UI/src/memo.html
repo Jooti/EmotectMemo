@@ -90,6 +90,34 @@
                         return true;
                     })();
                 },
+                async deleteMemo(memoId) {
+                    if (!memoId)
+                    {
+                        return false
+                    }
+                    await emoCrypt.setPassword(this.emoword);
+                    (async () => {
+                        const rawResponse = await fetch(baseURL + `/${memoId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Secret-Key' : emoCrypt.secretKey
+                            }
+                        });
+                        if (rawResponse.status == 401){
+                            this.emoword = "";
+                            this.content = [];
+                            this.decrypted = false;
+                            this.emowordIsIncorrect = true;
+                            return false;
+                        }
+                        if (rawResponse.status == 200){
+                            await this.getPage();
+                        }
+                        return true;
+                    })();
+                },
                 async getPage(){
                     this.emowordIsIncorrect = false;
                     await emoCrypt.setPassword(this.emoword);
@@ -114,6 +142,7 @@
                                 body: await emoCrypt.decrypt(c.body)
                             });
                         }
+                        this.hasContent = true;
                         this.decrypted = true;
                     })();
                 }
@@ -154,7 +183,7 @@
     <script src="js/emocrypt.js"></script>
     <title>EmotectMemo</title>
 </head>
-<body x-data="{page: ''}" class="body">
+<body x-data="" class="body">
     <div x-data="Memos()" x-init="init()" class="main-container">
 
     <!-- Header -->
@@ -196,7 +225,10 @@
                             type="text" name="emoword" x-model="emoword" placeholder="Example: 🥲🍁☃️😌">
                         </input>
                     </div>
-                    <button :disabled="emoword==''" class="primary-button" @click="step='confirm'" x-show="step == 'emoword'">
+                    <button :disabled="emoword==''" class="primary-button" 
+                        @click="step='confirm'" 
+                        @keyup.enter.window="$nextTick(() => $el.click())"
+                        x-show="step == 'emoword'">
                         Set Emoword
                     </button>
     
@@ -213,13 +245,20 @@
                     <div class="label-button-start" x-show="step == 'confirm'">
                         <label class="" for="copyEmoji">Current Emoword:</label>
                         <label class="flex-1 flex-shrink-0" for="copyEmoji" x-text="emoword"></label>
-                        <button name="copyEmoji" class="emoji-button" @click="navigator.clipboard.writeText(emoword);">📑</button>
+                        <button name="copyEmoji" class="emoji-button" 
+                            @keyup.copy.window="$nextTick(() => $el.click())"
+                            @keyup.ctrl.c.window="$nextTick(() => $el.click())"
+                            @click="navigator.clipboard.writeText(emoword);">📑</button>
                     </div>
                     <div class="justify-center-row" x-show="step == 'confirm'">
-                        <button class="secondary-button" @click="step='emoword'">
+                        <button class="secondary-button" 
+                            @keyup.escape.window="$nextTick(() => $el.click())"
+                            @click="step='emoword'">
                             Change Emoword
                         </button>
-                        <button class="primary-button" @click="post()">
+                        <button :disabled="step != 'confirm'" class="primary-button" 
+                            @keyup.enter.window="$nextTick(() => $el.click())"    
+                            @click="post()">
                             Looks Good
                         </button>
                     </div>   
@@ -238,7 +277,9 @@
                         </input>
                         <label x-show="emowordIsIncorrect" class="grayscale flex-shrink-0">⚠️Emoword is incorrect. You cannot pass.</label>
                     </div>
-                    <button :disabled="emoword==''" class="primary-button" @click="getPage()">
+                    <button :disabled="emoword==''" class="primary-button" 
+                        @keyup.enter.window="$nextTick(() => $el.click())"    
+                        @click="getPage()">
                         Verify
                     </button>
                 </div>
@@ -252,9 +293,15 @@
                 <div class="memo-card">
                     <p class="whitespace-pre-line" x-text="memo.body"></p>
                     <div class="action-bar">
-                        <button class="emoji-button" @click="alert(memo.id)" title="Delete">🗑️</button>
+                        <button class="emoji-button" @click="deleteMemo(memo.id);" title="Delete">🗑️</button>
                         <button class="emoji-button" @click="navigator.clipboard.writeText(memo.body);" title="Copy">📑</button>
                     </div>
+                </div>
+            </template>
+            <template x-if="content.length == 0">
+                <div class="memo-card">
+                    <p class="font-semibold">Empty. Completely empty.</p>
+                    <p>Write something and change the emptiness.</p>
                 </div>
             </template>
             <div class="fixed-bottom-box">
@@ -264,6 +311,7 @@
                     x-on:keyup='setFixedBottomBoxHeight($el,$refs.content)'
                     placeholder="Spit it out!"></textarea>
                     <button class="emoji-button self-end" title="Send" x-show="newMemo!=''" 
+                        @keyup.ctrl.enter.window="$nextTick(() => $el.click())"    
                         @click="if (post(newMemo)) {
                             newMemo=''; 
                             $nextTick(() =>setFixedBottomBoxHeight($refs.memoText,$refs.content))}">➡️</button>
