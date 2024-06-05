@@ -146,14 +146,15 @@ app.MapPost("/{key}", async (IMongoDatabase db,
 {
     var memoCollection = db.GetCollection<Memo>("memo");
     var memo = await (await memoCollection.FindAsync(x => x.Key == key)).FirstOrDefaultAsync();
+    MemoContent memoContent = new MemoContent(){ Body = memoDto.Body};
     if (memo is null)
     {
         try
         {
             await memoCollection.InsertOneAsync(new Memo() { 
                 Key = key, SecretKey = secretKey, Content = 
-                [new MemoContent(){ Body = memoDto.Body}] });
-            return Results.Created();
+                [memoContent] });
+            return Results.Ok(new {id = memoContent.Id});
         }
         catch(Exception ex)
         {
@@ -170,7 +171,7 @@ app.MapPost("/{key}", async (IMongoDatabase db,
                     new MemoContent() { Body = memoDto.Body });
         var result = await memoCollection
             .FindOneAndUpdateAsync(x => x.Key == key, update);
-        return Results.Created();
+            return Results.Ok(new {id = memoContent.Id});
     }
     return Results.BadRequest();
 });

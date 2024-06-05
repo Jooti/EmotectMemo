@@ -75,7 +75,6 @@ const Crypto = class {
         const encryptedMessage =btoa(
             this.arrayBufferToString(iv) + 
             this.arrayBufferToString(encrypted));
-        debugger;
         return encryptedMessage;
     }
 

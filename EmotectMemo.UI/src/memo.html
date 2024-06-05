@@ -81,11 +81,14 @@
                         }
                         if (rawResponse.status == 400)
                         {
-                            debugger;
                             return false;
                         }
-                        if (rawResponse.status == 201){
-                            await this.getPage();
+                        if (rawResponse.status == 200){
+                            const response = await rawResponse.json();
+                            this.content.unshift({
+                                id: response.id,
+                                body: memo
+                            })
                         }
                         return true;
                     })();
@@ -113,7 +116,7 @@
                             return false;
                         }
                         if (rawResponse.status == 200){
-                            await this.getPage();
+                            this.content.splice(this.content.findIndex(x=>x.id == memoId), 1);
                         }
                         return true;
                     })();
@@ -137,7 +140,7 @@
                         this.content = [];
                         for (let i = 0; i < response.content.length; i++) {
                             const c = response.content[i]
-                            this.content.push({
+                            this.content.unshift({
                                 id: c.id,
                                 body: await emoCrypt.decrypt(c.body)
                             });
@@ -289,7 +292,7 @@
 
     <template x-if="currentPage == PAGES.SHOW_CONTENT">
         <div x-data="{newMemo: ''}" class="content gap-3" x-ref="content" x-init="$nextTick(() =>setFixedBottomBoxHeight($refs.memoText,$refs.content))">
-            <template x-for="memo in content">
+            <template x-for="memo in content" :key="memo.id" x-transition>
                 <div class="memo-card">
                     <p class="whitespace-pre-line" x-text="memo.body"></p>
                     <div class="action-bar">
