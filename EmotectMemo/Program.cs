@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
                           policy =>
                           {
                               policy.WithOrigins("http://localhost:9090",
-                                                  "http://emotect.microj.ir")
+                                                  "https://emotect.microj.ir")
                                                   .AllowAnyHeader()
                                                   .AllowAnyMethod();
                           });
