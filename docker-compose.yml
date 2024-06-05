@@ -37,8 +37,8 @@ services:
       no_cache: true
       context: .
       dockerfile: EmotectMemo.UI/Dockerfile
-    environment:
-      EMOTECTAPI: https://testapi.com
+      args:
+        - EMOTECTAPI=http://localhost:62000
 
 volumes:
   mongodb_data:

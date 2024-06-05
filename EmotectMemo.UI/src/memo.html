@@ -10,8 +10,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
     </style>
+    <script src="js/env.js"></script>
     <script>
-        const baseURL =`http://localhost:62000${window.location.pathname}`;
+        const baseURL =`${EMOTECTMEMO_BASE_URL}${window.location.pathname}`;
         const welcomeMessage = 'I\'ll remember what you said in a protected way. You remember the Emoword, the only key. Remember me.'
         const Memos = ()=>{
             const emoCrypt = new Crypto();

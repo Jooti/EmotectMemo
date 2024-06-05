@@ -6,6 +6,8 @@ RUN npm install
 COPY "EmotectMemo.UI/src" ./src
 COPY EmotectMemo.UI/tailwind.config.js ./
 RUN npx tailwindcss -i ./src/css/tailwindstyles.css -o ./src/css/styles.css
+ARG EMOTECTAPI=http://localhost:62000
+RUN cd ./src/js && echo "const EMOTECTMEMO_BASE_URL = '${EMOTECTAPI}'" > env.js
 
 COPY . .
 
