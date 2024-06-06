@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  emotectmemo:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "62000:8080"
+
+  emotectmemosite:
+    build: 
+        args:
+        - EMOTECTAPI=https://emotapi.microj.ir
