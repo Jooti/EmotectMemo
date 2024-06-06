@@ -29,6 +29,12 @@ const Crypto = class {
         const encoder = new TextEncoder();
         return encoder.encode(text);
     }
+
+    decode(buffer){
+        const decoder = new TextDecoder();
+        return decoder.decode(buffer);
+    }
+
     async digestSHA256(message){
         const data = this.encode(message);
         return await window.crypto.subtle.digest("SHA-256", data);
@@ -92,7 +98,7 @@ const Crypto = class {
                 algorithm, 
                 key, 
                 message);  
-            return this.arrayBufferToString(plainBuff);
+            return this.decode(plainBuff);
         } catch (error) {
             return "Failed to decrypt message."
         }
