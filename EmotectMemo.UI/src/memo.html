@@ -89,7 +89,9 @@
                             this.content.unshift({
                                 id: response.id,
                                 body: memo
-                            })
+                            });
+                            this.hasContent = true;
+                            this.decrypted = true;
                         }
                         return true;
                     })();
@@ -262,7 +264,7 @@
                         </button>
                         <button :disabled="step != 'confirm'" class="primary-button" 
                             @keyup.enter.window="$nextTick(() => $el.click())"    
-                            @click="post()">
+                            @click="post();step = ''">
                             Looks Good
                         </button>
                     </div>   
