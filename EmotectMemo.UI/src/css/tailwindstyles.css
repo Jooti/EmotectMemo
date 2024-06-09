@@ -22,15 +22,20 @@
         items-end content-stretch justify-start justify-items-start 
         min-w-80 h-dvh w-full gap-4
     }
+
+    .justify-between-row{
+        @apply nowrap-row content-stretch justify-between w-dvw;
+    }
+
     .app-header{
-        @apply justify-between-row items-center gap-4 p-3
+        @apply justify-between-row items-center gap-4 p-3 lg:pl-40 lg:pr-40
     }
     .app-title{
         @apply flex-shrink-0 font-semibold text-sm
     }
     .content{
         @apply flex flex-col flex-nowrap items-center content-stretch justify-end 
-        gap-8 self-center w-full pl-3 pr-3;
+        gap-8 self-center w-full pl-3 pr-3 lg:w-2/5;
     }
     .button{
         @apply min-w-36 max-w-44 h-12 cursor-pointer hover:rounded-none delay-75 duration-500
@@ -70,7 +75,11 @@
     }
 
     .text-start{
-        @apply text justify-start;
+        @apply text sm:justify-start;
+    }
+
+    .card-text-p{
+        @apply flex flex-row lg:text-center
     }
     .over-input-label{
         @apply flex flex-col gap-2 justify-start content-stretch items-start w-full h-auto;
@@ -92,10 +101,6 @@
 
     .nowrap-row{
         @apply flex flex-row flex-nowrap; 
-    }
-
-    .justify-between-row{
-        @apply nowrap-row content-stretch justify-between w-dvw;
     }
 
     .justify-center-row{
