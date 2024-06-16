@@ -28,14 +28,14 @@
     }
 
     .app-header{
-        @apply justify-between-row items-center gap-4 p-3 lg:pl-40 lg:pr-40
+        @apply justify-between-row items-center gap-4 p-3 md:pl-40 md:pr-40
     }
     .app-title{
         @apply flex-shrink-0 font-semibold text-sm
     }
     .content{
         @apply flex flex-col flex-nowrap items-center content-stretch justify-end 
-        gap-8 self-center w-full pl-3 pr-3 lg:w-2/5;
+        gap-8 self-center w-full pl-3 pr-3 md:pl-40 md:pr-40;
     }
     .button{
         @apply min-w-36 max-w-44 h-12 cursor-pointer hover:rounded-none delay-75 duration-500
@@ -63,7 +63,9 @@
     }
     .card{
         @apply w-full bg-emotral-0 border border-emotral-10 flex flex-col
-                    gap-6 pt-6 pb-6 pl-3 pr-3 rounded-lg items-center dark:bg-emotral-90 dark:border-emotral-80;
+                    gap-6 pt-6 pb-6 pl-3 pr-3 rounded-lg items-center 
+                    dark:bg-emotral-90 dark:border-emotral-80
+                    md:max-w-screen-sm;
     }
 
     .memo-card{
@@ -79,7 +81,7 @@
     }
 
     .card-text-p{
-        @apply flex flex-row lg:text-center
+        @apply flex flex-row md:text-center
     }
     .over-input-label{
         @apply flex flex-col gap-2 justify-start content-stretch items-start w-full h-auto;
@@ -118,10 +120,14 @@
     .action-bar{
         @apply flex flex-row items-start justify-end gap-4 content-stretch w-full;
     }
-    
+
     .fixed-bottom-box{
         @apply fixed bottom-0 w-full p-3 gap-4 flex flex-row items-start resize-y
-            content-stretch justify-start z-10 bg-emotral-2 dark:bg-emotral-100;
+        content-stretch justify-start z-10 bg-emotral-2 dark:bg-emotral-100;
+    }
+
+    .relative-box{
+        @apply relative w-3/6;
     }
 
     .input-button-row{

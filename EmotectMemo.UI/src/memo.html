@@ -292,15 +292,27 @@
             </template>
       </div>
     </template>
-
     <template x-if="currentPage == PAGES.SHOW_CONTENT">
-        <div x-data="{newMemo: ''}" class="content gap-3" x-ref="content" x-init="$nextTick(() =>setFixedBottomBoxHeight($refs.memoText,$refs.content))">
+        <div x-data="{newMemo: ''}" class="content gap-3" x-ref="content"
+            x-init="$nextTick(() =>setFixedBottomBoxHeight($refs.memoText,$refs.content))">
+            <div class="fixed-bottom-box md:relative-box">
+                <div class="input-button-row group">
+                    <!-- <input class="flex-1 bottom-0 focus:border-0 focus:shadow-none focus:outline-none active:border-0 pl-4" type="text" placeholder="Spit it out!"/> -->
+                    <textarea class="no-scroll-text-area" x-ref="memoText" x-model="newMemo"
+                        x-on:keyup='setFixedBottomBoxHeight($el,$refs.content)' placeholder="Spit it out!"></textarea>
+                    <button class="emoji-button self-end" title="Send" x-show="newMemo!=''"
+                        @keyup.ctrl.enter.window="$nextTick(() => $el.click())" @click="if (post(newMemo)) {
+                                newMemo=''; 
+                                $nextTick(() =>setFixedBottomBoxHeight($refs.memoText,$refs.content))}">➡️</button>
+                </div>
+            </div>
             <template x-for="memo in content" :key="memo.id" x-transition>
                 <div class="memo-card">
                     <p class="whitespace-pre-line" x-text="memo.body"></p>
                     <div class="action-bar">
                         <button class="emoji-button" @click="deleteMemo(memo.id);" title="Delete">🗑️</button>
-                        <button class="emoji-button" @click="navigator.clipboard.writeText(memo.body);" title="Copy">📑</button>
+                        <button class="emoji-button" @click="navigator.clipboard.writeText(memo.body);"
+                            title="Copy">📑</button>
                     </div>
                 </div>
             </template>
@@ -310,19 +322,6 @@
                     <p>Write something and change the emptiness.</p>
                 </div>
             </template>
-            <div class="fixed-bottom-box">
-                <div class="input-button-row group">
-                    <!-- <input class="flex-1 bottom-0 focus:border-0 focus:shadow-none focus:outline-none active:border-0 pl-4" type="text" placeholder="Spit it out!"/> -->
-                    <textarea class="no-scroll-text-area" x-ref="memoText" x-model="newMemo" 
-                    x-on:keyup='setFixedBottomBoxHeight($el,$refs.content)'
-                    placeholder="Spit it out!"></textarea>
-                    <button class="emoji-button self-end" title="Send" x-show="newMemo!=''" 
-                        @keyup.ctrl.enter.window="$nextTick(() => $el.click())"    
-                        @click="if (post(newMemo)) {
-                            newMemo=''; 
-                            $nextTick(() =>setFixedBottomBoxHeight($refs.memoText,$refs.content))}">➡️</button>
-                </div>
-            </div>
         </div>
     </template>
 </div>  
