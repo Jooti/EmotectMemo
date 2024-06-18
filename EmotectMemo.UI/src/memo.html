@@ -344,7 +344,7 @@
                 x-ref="memoGrid" 
                 x-init="$nextTick(()=>resizeGridItems($el))"
                 @keyup.ctrl.i.window="$nextTick(()=>resizeGridItems($el))"
-                @resize.window="$nextTick(()=>resizeGridItems($el))">
+                @resize.window="console.debug('resize'); $nextTick(()=>setTimeout(($el) => resizeGridItems, 150));">
                 <template x-for="memo in content" :key="memo.id">
                     <div class="item">
                         <div class="memo-card">
