@@ -7,6 +7,11 @@
     <script defer src="./js/alpine.min.js"></script>
     <link href="./css/styles.css" rel="stylesheet">
     <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script
+    defer
+    src="https://unpkg.com/alpinejs-masonry@latest/dist/masonry.min.js">
+    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
     </style>
@@ -14,6 +19,7 @@
     <script>
         const baseURL =`${EMOTECTMEMO_BASE_URL}${window.location.pathname}`;
         const welcomeMessage = 'I\'ll remember what you said in a protected way. You remember the Emoword, the only key. Remember me.'
+        const isMobile = window.innerWidth < 768;
         const Memos = ()=>{
             const emoCrypt = new Crypto();
             return {
@@ -92,6 +98,7 @@
                             });
                             this.hasContent = true;
                             this.decrypted = true;
+                            this.$dispatch('memochange');
                         }
                         return true;
                     })();
@@ -120,6 +127,7 @@
                         }
                         if (rawResponse.status == 200){
                             this.content.splice(this.content.findIndex(x=>x.id == memoId), 1);
+                            this.$dispatch('memochange');
                         }
                         return true;
                     })();
@@ -176,14 +184,41 @@
         }
 
         const setFixedBottomBoxHeight = (textArea, content) =>{
+            console.debug("setFixedBottomBoxHeight start");
             const MIN_PADDING = 84;
             const MIN_BOTTOM_BOX_HEIGHT = 128;
             const BOTTOM_BOX_OFFSET = 48;
 
+            console.debug(`setFixedBottomBoxHeight from: ${textArea.style.height}`);
             textArea.style.height = "20px"; 
             textArea.style.height = (textArea.scrollHeight)+"px"; 
-            content.style.paddingBottom = Math.max(MIN_PADDING, 
-                BOTTOM_BOX_OFFSET + Math.min(MIN_BOTTOM_BOX_HEIGHT, textArea.scrollHeight)) + "px"
+            console.debug(`setFixedBottomBoxHeight to: ${textArea.style.height}`);
+            if (isMobile){
+                content.style.paddingBottom = Math.max(MIN_PADDING, 
+                    BOTTOM_BOX_OFFSET + Math.min(MIN_BOTTOM_BOX_HEIGHT, textArea.scrollHeight)) + "px"
+            }
+        }
+
+
+        const resizeGridItem = (grid, item) => {
+            //grid = document.getElementsByClassName("grid")[0];
+            rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
+            rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap'));
+            rowSpan = Math.ceil(
+                    (item.children[0].getBoundingClientRect().height+rowGap)/(rowHeight+rowGap));
+            item.style.gridRowEnd = "span "+rowSpan;
+        }
+        const resizeGridItems = (memoGrid) => {
+            const numberOfCulumns = window.getComputedStyle(memoGrid)
+                                        .getPropertyValue("grid-template-columns")
+                                        .split(" ").length;
+            if (numberOfCulumns == 1){
+                return;
+            }
+            allItems = memoGrid.getElementsByClassName("item");
+            for(x=0;x<allItems.length;x++){
+                resizeGridItem(memoGrid, allItems[x]);
+            }
         }
     </script>
     <script src="js/emocrypt.js"></script>
@@ -285,7 +320,7 @@
                     </div>
                     <button :disabled="emoword==''" class="primary-button" 
                         @keyup.enter.window="$nextTick(() => $el.click())"    
-                        @click="getPage()">
+                        @click="if (currentPage == PAGES.VERIFY_EMOCODE) getPage()">
                         Verify
                     </button>
                 </div>
@@ -294,34 +329,45 @@
     </template>
     <template x-if="currentPage == PAGES.SHOW_CONTENT">
         <div x-data="{newMemo: ''}" class="content gap-3" x-ref="content"
-            x-init="$nextTick(() =>setFixedBottomBoxHeight($refs.memoText,$refs.content))">
+            @memochange="$nextTick(()=>resizeGridItems($refs.memoGrid))"
+            x-init="$nextTick(() =>
+                setFixedBottomBoxHeight($refs.memoText,$refs.content))">
             <div class="fixed-bottom-box md:relative-box">
                 <div class="input-button-row group">
-                    <!-- <input class="flex-1 bottom-0 focus:border-0 focus:shadow-none focus:outline-none active:border-0 pl-4" type="text" placeholder="Spit it out!"/> -->
                     <textarea class="no-scroll-text-area" x-ref="memoText" x-model="newMemo"
-                        x-on:keyup='setFixedBottomBoxHeight($el,$refs.content)' placeholder="Spit it out!"></textarea>
-                    <button class="emoji-button self-end" title="Send" x-show="newMemo!=''"
-                        @keyup.ctrl.enter.window="$nextTick(() => $el.click())" @click="if (post(newMemo)) {
-                                newMemo=''; 
-                                $nextTick(() =>setFixedBottomBoxHeight($refs.memoText,$refs.content))}">➡️</button>
+                        @input='setFixedBottomBoxHeight($el,$refs.content)' 
+                        @keyup.esc="$el.value = '';setFixedBottomBoxHeight($el,$refs.content)"
+                        @keyup.ctrl.enter="$nextTick(() => $refs.postMemoButton.click());"
+                        placeholder="Spit it out!"></textarea>
+                    <button class="emoji-button self-end" x-ref="postMemoButton" title="Send" x-show="newMemo!=''"
+                        @click="if (post(newMemo)) 
+                            $refs.memoText.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape' }));">➡️</button>
                 </div>
             </div>
-            <template x-for="memo in content" :key="memo.id" x-transition>
-                <div class="memo-card">
-                    <p class="whitespace-pre-line" x-text="memo.body"></p>
-                    <div class="action-bar">
-                        <button class="emoji-button" @click="deleteMemo(memo.id);" title="Delete">🗑️</button>
-                        <button class="emoji-button" @click="navigator.clipboard.writeText(memo.body);"
-                            title="Copy">📑</button>
+            <div class="grid items-center sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:auto-rows-[5px] gap-3 w-full" 
+                x-ref="memoGrid" 
+                x-init="$nextTick(()=>resizeGridItems($el))"
+                @keyup.ctrl.i.window="$nextTick(()=>resizeGridItems($el))"
+                @resize.window="$nextTick(()=>resizeGridItems($el))">
+                <template x-for="memo in content" :key="memo.id">
+                    <div class="item">
+                        <div class="memo-card">
+                            <p class="whitespace-pre-line" x-text="memo.body"></p>
+                            <div class="action-bar">
+                                <button class="emoji-button" @click="deleteMemo(memo.id); $dispatch('memoChange')" title="Delete">🗑️</button>
+                                <button class="emoji-button" @click="navigator.clipboard.writeText(memo.body);"
+                                    title="Copy">📑</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </template>
-            <template x-if="content.length == 0">
-                <div class="memo-card">
-                    <p class="font-semibold">Empty. Completely empty.</p>
-                    <p>Write something and change the emptiness.</p>
-                </div>
-            </template>
+                </template>
+                <template x-if="content.length == 0">
+                    <div class="memo-card">
+                        <p class="font-semibold">Empty. Completely empty.</p>
+                        <p>Write something and change the emptiness.</p>
+                    </div>
+                </template>
+            </div>
         </div>
     </template>
 </div>  
