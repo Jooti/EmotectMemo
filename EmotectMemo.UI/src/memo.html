@@ -19,7 +19,6 @@
     <script>
         const baseURL =`${EMOTECTMEMO_BASE_URL}${window.location.pathname}`;
         const welcomeMessage = 'I\'ll remember what you said in a protected way. You remember the Emoword, the only key. Remember me.'
-        const isMobile = window.innerWidth < 768;
         const Memos = ()=>{
             const emoCrypt = new Crypto();
             return {
@@ -184,16 +183,13 @@
         }
 
         const setFixedBottomBoxHeight = (textArea, content) =>{
-            console.debug("setFixedBottomBoxHeight start");
             const MIN_PADDING = 84;
             const MIN_BOTTOM_BOX_HEIGHT = 128;
             const BOTTOM_BOX_OFFSET = 48;
 
-            console.debug(`setFixedBottomBoxHeight from: ${textArea.style.height}`);
             textArea.style.height = "20px"; 
             textArea.style.height = (textArea.scrollHeight)+"px"; 
-            console.debug(`setFixedBottomBoxHeight to: ${textArea.style.height}`);
-            if (isMobile){
+            if (window.innerWidth < 768){
                 content.style.paddingBottom = Math.max(MIN_PADDING, 
                     BOTTOM_BOX_OFFSET + Math.min(MIN_BOTTOM_BOX_HEIGHT, textArea.scrollHeight)) + "px"
             }
