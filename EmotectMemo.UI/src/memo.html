@@ -206,12 +206,12 @@
         }
         const resizeGridItems = (memoGrid) => {
             console.debug("resize - start");
-            const numberOfCulumns = window.getComputedStyle(memoGrid)
-                                        .getPropertyValue("grid-template-columns")
-                                        .split(" ").length;
-            if (numberOfCulumns == 1){
-                return;
-            }
+            // const numberOfCulumns = window.getComputedStyle(memoGrid)
+            //                             .getPropertyValue("grid-template-columns")
+            //                             .split(" ").length;
+            // if (numberOfCulumns == 1){
+            //     return;
+            // }
             allItems = memoGrid.getElementsByClassName("item");
             for(x=0;x<allItems.length;x++){
                 resizeGridItem(memoGrid, allItems[x]);
