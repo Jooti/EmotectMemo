@@ -39,9 +39,9 @@
         gap-8 self-center w-full pl-3 pr-3 md:pl-20 md:pr-20;
     }
     .button{
-        @apply min-w-36 max-w-44 h-12 cursor-pointer hover:rounded-none delay-75 duration-500
+        @apply min-w-36 max-w-44 md:w-64 md:max-w-64 h-12 cursor-pointer hover:rounded-none delay-75 duration-500
         flex-row rounded-lg 
-        items-center content-stretch justify-evenly text-center
+        items-center content-stretch pl-4 pr-4 justify-evenly text-center
         disabled:cursor-default disabled:hover:rounded-lg;  
     }
     .primary-button {
@@ -82,11 +82,15 @@
     }
 
     .card-text-p{
-        @apply flex flex-row md:text-center
+        @apply flex flex-row sm:text-left md:text-center
     }
 
     .card p{
         @apply card-text-p;
+    }
+
+    .memo-card p{
+        @apply md:text-left
     }
 
     .card h2{
@@ -94,7 +98,7 @@
     }
 
     .over-input-label{
-        @apply flex flex-col gap-2 justify-start content-stretch items-start w-full h-auto;
+        @apply flex flex-col gap-2 justify-start content-stretch items-start w-full h-auto md:max-w-80;
     }
 
     .text-input-colors{
