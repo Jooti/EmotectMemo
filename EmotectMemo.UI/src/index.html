@@ -128,7 +128,7 @@
                         </div>
                     </div>
                     <button :disabled="EmowordName==''" class="primary-button" x-ref="redirectButton"
-                        @click="location.replace(`${location.origin}/${EmowordName}`)" 
+                        @click="location.href = `${location.origin}/${EmowordName}`" 
                         @keyup.enter.window="$nextTick(() => $el.click())">
                         Go
                     </button>
