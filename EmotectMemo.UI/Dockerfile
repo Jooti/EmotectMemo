@@ -13,7 +13,7 @@ COPY . .
 
 FROM nginx:alpine as final
 COPY "EmotectMemo.UI/nginx.conf" /etc/nginx/nginx.conf
-COPY --from=build "/node" /usr/share/nginx/code
+COPY --from=build "/node" /code
 EXPOSE 80 
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

@@ -41,7 +41,7 @@
     .button{
         @apply min-w-36 max-w-44 h-12 cursor-pointer hover:rounded-none delay-75 duration-500
         flex-row rounded-lg 
-        items-center content-stretch p-4 justify-evenly text-center
+        items-center content-stretch justify-evenly text-center
         disabled:cursor-default disabled:hover:rounded-lg;  
     }
     .primary-button {
@@ -78,12 +78,21 @@
     }
 
     .text-start{
-        @apply text sm:justify-start;
+        @apply text sm:justify-start md:justify-center;
     }
 
     .card-text-p{
         @apply flex flex-row md:text-center
     }
+
+    .card p{
+        @apply card-text-p;
+    }
+
+    .card h2{
+        @apply card-text-p font-semibold
+    }
+
     .over-input-label{
         @apply flex flex-col gap-2 justify-start content-stretch items-start w-full h-auto;
     }

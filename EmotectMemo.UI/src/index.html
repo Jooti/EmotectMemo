@@ -1,25 +1,412 @@
 ﻿<!DOCTYPE html>
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html  x-data="theme()" x-init="init()" :class="mode"  lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script>
-        import Alpine from 'alpinejs'
-        window.Alpine = Alpine
-        Alpine.start()
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script defer src="./js/alpine.min.js"></script>
+    <link href="./css/styles.css" rel="stylesheet">
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script
+    defer
+    src="https://unpkg.com/alpinejs-masonry@latest/dist/masonry.min.js">
     </script>
-    <title>tmp</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+    </style>
+    <script src="js/env.js"></script>
+    <script>
+        const baseURL =`${EMOTECTMEMO_BASE_URL}${window.location.pathname}`;
+        const welcomeMessage = 'I\'ll remember what you said in a protected way. You remember the Emoword, the only key. Remember me.'
+        const Memos = ()=>{
+            const emoCrypt = new Crypto();
+            return {
+                key: "",
+                content: [],
+                hasContent: false,
+                isLoading: true,
+                emoword: "",
+                decrypted: false,
+                emowordIsIncorrect: false,
+                PAGES: {
+                    LOADING: {key: 'loading', icon: '', darkIcon: ''}, 
+                    HOME: {key: 'home', icon: '', darkIcon: ''}, 
+                    NEW: {key: 'new', icon: 'img/new.svg', darkIcon: 'img/darknew.svg'}, 
+                    VERIFY_EMOCODE: {key: 'emocode', icon: 'img/emocode.svg', darkIcon: 'img/darkemocode.svg'},  
+                    SHOW_CONTENT: {key: 'content', icon: '', darkIcon: ''}
+                },
+                init() {
+                    if (window.location.pathname == "/"){
+                        this.isLoading = false;
+                        return;
+                    }
+                    fetch(`${baseURL}/exists`)
+                        .then(response => response.json())
+                        .then(response => {
+                            this.isLoading = false;
+                            this.hasContent = response.exists;
+                            this.key = window.location.pathname;
+                        })
+                        .catch((exception) => {
+                            console.log(exception);
+                        });
+                },
+                get currentPage(){
+                    if (this.isLoading){
+                        return this.PAGES.LOADING;
+                    }
+                    if (this.key == ''){
+                        return this.PAGES.HOME;
+                    }
+                    //else
+                    if (!this.hasContent){
+                        return this.PAGES.NEW;
+                    }
+                    //else
+                    if (!this.decrypted){
+                        return this.PAGES.VERIFY_EMOCODE;
+                    }
+                    //else
+                    return this.PAGES.SHOW_CONTENT;
+                },
+                async post(memo) {
+                    if (!memo)
+                    {
+                        memo = welcomeMessage;
+                    }
+                    await emoCrypt.setPassword(this.emoword);
+                    (async () => {
+                        const rawResponse = await fetch(baseURL, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Secret-Key' : emoCrypt.secretKey
+                            },
+                            body: JSON.stringify({ body: await emoCrypt.encrypt(memo) })
+                        });
+                        if (rawResponse.status == 401){
+                            this.emoword = "";
+                            this.content = [];
+                            this.decrypted = false;
+                            this.emowordIsIncorrect = true;
+                            return false;
+                        }
+                        if (rawResponse.status == 400)
+                        {
+                            return false;
+                        }
+                        if (rawResponse.status == 200){
+                            const response = await rawResponse.json();
+                            this.content.unshift({
+                                id: response.id,
+                                body: memo
+                            });
+                            this.hasContent = true;
+                            this.decrypted = true;
+                            this.$dispatch('memochange');
+                        }
+                        return true;
+                    })();
+                },
+                async deleteMemo(memoId) {
+                    if (!memoId)
+                    {
+                        return false
+                    }
+                    await emoCrypt.setPassword(this.emoword);
+                    (async () => {
+                        const rawResponse = await fetch(baseURL + `/${memoId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Secret-Key' : emoCrypt.secretKey
+                            }
+                        });
+                        if (rawResponse.status == 401){
+                            this.emoword = "";
+                            this.content = [];
+                            this.decrypted = false;
+                            this.emowordIsIncorrect = true;
+                            return false;
+                        }
+                        if (rawResponse.status == 200){
+                            this.content.splice(this.content.findIndex(x=>x.id == memoId), 1);
+                            this.$dispatch('memochange');
+                        }
+                        return true;
+                    })();
+                },
+                async getPage(){
+                    this.emowordIsIncorrect = false;
+                    await emoCrypt.setPassword(this.emoword);
+                    (async () => {
+                        const rawResponse = await fetch(baseURL, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Secret-Key' : emoCrypt.secretKey
+                            }});
+                        if (rawResponse.status == 401){
+                            this.emowordIsIncorrect = true;
+                            return;
+                        }
+                        const response = await rawResponse.json();
+                        this.content = [];
+                        for (let i = 0; i < response.content.length; i++) {
+                            const c = response.content[i]
+                            this.content.unshift({
+                                id: c.id,
+                                body: await emoCrypt.decrypt(c.body)
+                            });
+                        }
+                        this.hasContent = true;
+                        this.decrypted = true;
+                    })();
+                }
+            };
+        }
+
+        const darkModeLocalStorageKey = 'darkMode';
+        const theme = ()=>{
+            return {
+                darkMode: false,
+                init(){
+                    this.darkMode=localStorage.getItem(darkModeLocalStorageKey)=='true';
+                },
+                get mode(){
+                    return this.darkMode?'dark':'';
+                },
+                get otherModeEmoji(){
+                    return this.darkMode?'☀️':'🌙'
+                },
+                toggleMode(){
+                    this.darkMode = !this.darkMode;
+                    localStorage.setItem(darkModeLocalStorageKey, this.darkMode);
+                }
+            }
+        }
+
+        const setFixedBottomBoxHeight = (textArea, content) =>{
+            const MIN_PADDING = 84;
+            const MIN_BOTTOM_BOX_HEIGHT = 128;
+            const BOTTOM_BOX_OFFSET = 48;
+
+            textArea.style.height = "20px"; 
+            textArea.style.height = (textArea.scrollHeight)+"px"; 
+            if (window.innerWidth < 768){
+                content.style.paddingBottom = Math.max(MIN_PADDING, 
+                    BOTTOM_BOX_OFFSET + Math.min(MIN_BOTTOM_BOX_HEIGHT, textArea.scrollHeight)) + "px"
+            }
+        }
+
+
+        const resizeGridItem = (grid, item) => {
+            rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
+            rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap'));
+            rowSpan = Math.ceil(
+                    (item.children[0].getBoundingClientRect().height+rowGap)/(rowHeight+rowGap));
+            item.style.gridRowEnd = "span "+rowSpan;
+        }
+        const resizeGridItems = (memoGrid) => {
+
+            allItems = memoGrid.getElementsByClassName("item");
+            for(x=0;x<allItems.length;x++){
+                resizeGridItem(memoGrid, allItems[x]);
+            }
+        }
+    </script>
+    <script src="js/emocrypt.js"></script>
+    <title>EmotectMemo</title>
 </head>
-<body>
-    <h1>Site</h1>
-    <div x-data="{ open: false }">
-        <button @click="open = ! open">Toggle Content</button>
-     
-        <div x-show="open" x-data="{ content: '<h1 x-text='open'> x </h1>'}">
-            Content...
-            <div x-html="content"></div>
-        </div>
+<body x-data="" class="body">
+    <div x-data="Memos()" x-init="init()" class="main-container">
+
+    <!-- Header -->
+    <div class="app-header">
+        <h1 class="app-title">
+            Emotect Memo
+        </h1>         
+        <button class="emoji-button" @click="toggleMode()" x-text="otherModeEmoji">🌘</button>
     </div>
+
+    <template x-if="isLoading">
+        <div class="content">
+            <div>Loading...</div>
+        </div>
+    </template>
+
+    <!-- Content -->
+    <template x-if="!isLoading && currentPage != PAGES.SHOW_CONTENT">
+        <div class="content">
+            <div x-show="currentPage.icon != ''">
+                <img :src="darkMode?currentPage.darkIcon:currentPage.icon" width="164" height="164" />
+            </div>
+            <template x-if="currentPage == PAGES.HOME" >
+                <div class="card" x-data="{EmowordName: ''}">
+                    <div class="text-start">
+                        <h2>
+                            Emoji Protected Memo                            
+                        </h2>
+                        <p>
+                            EmotectMemo is a minimal end to end encrypted text/note sharing app, protected by Emoji passwords.
+                        </p>
+                        <p>
+                            EmotectMemo is password protected but it has no username. The data is stored both encrypted and anonymous. Each page has its own unique URL and Emoword. Anyone knowing both, is the owner of the page.
+                        </p>
+                        <p>
+                            No kind of recovery Emoword or URL recovery is available. EmotectMemo stores no data to be able to verify your ownership.
+                        </p>
+                        <p>
+                            Type EmotectMemo name to make or view its content.
+                        </p>
+                    </div>
+                    <div class="over-input-label">
+                        <label class="flex flex-row" for="emoword">
+                            EmotectMemo Name
+                        </label>
+                        <div class="input-button-row group">
+                            <span x-text=`${location.origin}/`></span>
+                            <input type="text" class="no-scroll-text-area pl-0" x-model="EmowordName"
+                                @keyup.esc="$el.value = ''"
+                                @keyup.enter="$nextTick(() => $refs.redirectButton.click());"
+                                placeholder="Name"></textarea>
+                        </div>
+                    </div>
+                    <button :disabled="EmowordName==''" class="primary-button" x-ref="redirectButton"
+                        @click="location.replace(`${location.origin}/${EmowordName}`)" 
+                        @keyup.enter.window="$nextTick(() => $el.click())">
+                        Go
+                    </button>
+
+                </div>
+            </template>
+            <template x-if="currentPage == PAGES.NEW">
+                <div x-data="{step: 'emoword'}" class="card">
+                    <!-- Setup your Emoword -->
+                    <div class="text-start" x-show="step == 'emoword'">   
+                        <p class="card-text-p">
+                            It's an empty or a new EmotectMemo page, the decision is yours to make. 
+                        </p>
+                        <p class="card-text-p">
+                            EmotectMemo is a minimal end to end encrypted text sharing app, protected by Emoji passwords. Set the Emoword and own it.
+                        </p>
+                    </div>
+                    <div class="over-input-label" x-show="step == 'emoword'">
+                        <label class="flex flex-row" for="emoword">
+                            Make your Emoword
+                        </label>
+                        <input x-init="$nextTick(() => $el.focus())" class="emoword-text-input" autocomplete="off" 
+                            type="text" name="emoword" x-model="emoword" placeholder="Example: 🥲🍁☃️😌">
+                        </input>
+                    </div>
+                    <button :disabled="emoword==''" class="primary-button" 
+                        @click="step='confirm'" 
+                        @keyup.enter.window="$nextTick(() => $el.click())"
+                        x-show="step == 'emoword'">
+                        Set Emoword
+                    </button>
+    
+
+                    <!-- Comfirm your Emoword -->
+                    <div class="text-start" x-show="step == 'confirm'">   
+                        <h2 class="card-text-p font-semibold">
+                            Remember! Remember!
+                        </h2>
+                        <p class="card-text-p">
+                            Once the Emoword is made for this page, it would be used as an end to end encryption key and you would be the only one who knows it. Remember it. There would be no recovery available.
+                        </p>
+                    </div>
+                    <div class="label-button-start" x-show="step == 'confirm'">
+                        <label class="" for="copyEmoji">Current Emoword:</label>
+                        <label class="flex-1 flex-shrink-0" for="copyEmoji" x-text="emoword"></label>
+                        <button name="copyEmoji" class="emoji-button" 
+                            @keyup.copy.window="$nextTick(() => $el.click())"
+                            @keyup.ctrl.c.window="$nextTick(() => $el.click())"
+                            @click="navigator.clipboard.writeText(emoword);">📑</button>
+                    </div>
+                    <div class="justify-center-row" x-show="step == 'confirm'">
+                        <button class="secondary-button" 
+                            @keyup.escape.window="$nextTick(() => $el.click())"
+                            @click="step='emoword'">
+                            Change Emoword
+                        </button>
+                        <button :disabled="step != 'confirm'" class="primary-button" 
+                            @keyup.enter.window="$nextTick(() => $el.click())"    
+                            @click="post();step = ''">
+                            Looks Good
+                        </button>
+                    </div>   
+                </div>
+            </template>
+
+            <template x-if="currentPage == PAGES.VERIFY_EMOCODE">
+                <div x-data="" class="card">
+                    <!-- Verify your Emoword -->
+                    <div class="over-input-label" >
+                        <label class="flex flex-row" for="emoword">
+                            Emoword
+                        </label>
+                        <input x-init="$nextTick(() => $el.focus())" class="emoword-text-input" autocomplete="off" 
+                            type="text" name="emoword" x-model="emoword" x-on:keypress="emowordIsIncorrect=false" placeholder="Example: 🥲🍁☃️😌">
+                        </input>
+                        <label x-show="emowordIsIncorrect" class="grayscale flex-shrink-0">⚠️Emoword is incorrect. You cannot pass.</label>
+                    </div>
+                    <button :disabled="emoword==''" class="primary-button" 
+                        @keyup.enter.window="$nextTick(() => $el.click())"    
+                        @click="if (currentPage == PAGES.VERIFY_EMOCODE) getPage()">
+                        Verify
+                    </button>
+                </div>
+            </template>
+      </div>
+    </template>
+    <template x-if="currentPage == PAGES.SHOW_CONTENT">
+        <div x-data="{newMemo: ''}" class="content gap-3" x-ref="content"
+            @memochange="$nextTick(()=>resizeGridItems($refs.memoGrid))"
+            x-init="$nextTick(() =>
+                setFixedBottomBoxHeight($refs.memoText,$refs.content))">
+            <div class="fixed-bottom-box md:relative-box">
+                <div class="input-button-row group">
+                    <textarea class="no-scroll-text-area" x-ref="memoText" x-model="newMemo"
+                        @input='setFixedBottomBoxHeight($el,$refs.content)' 
+                        @keyup.esc="$el.value = '';setFixedBottomBoxHeight($el,$refs.content)"
+                        @keyup.ctrl.enter="$nextTick(() => $refs.postMemoButton.click());"
+                        placeholder="Spit it out!"></textarea>
+                    <button class="emoji-button self-end" x-ref="postMemoButton" title="Send" x-show="newMemo!=''"
+                        @click="if (post(newMemo)) 
+                            $refs.memoText.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape' }));">➡️</button>
+                </div>
+            </div>
+            <div class="grid items-center sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:auto-rows-[5px] gap-3 w-full" 
+                x-ref="memoGrid" 
+                x-init="$nextTick(()=>resizeGridItems($el))"
+                @keyup.ctrl.i.window="$nextTick(()=>resizeGridItems($el))"
+                @resize.window="await $nextTick(); setTimeout(resizeGridItems, 100, $el);">
+                <template x-for="memo in content" :key="memo.id">
+                    <div class="item">
+                        <div class="memo-card">
+                            <p class="whitespace-pre-line" x-text="memo.body"></p>
+                            <div class="action-bar">
+                                <button class="emoji-button" @click="deleteMemo(memo.id); $dispatch('memoChange')" title="Delete">🗑️</button>
+                                <button class="emoji-button" @click="navigator.clipboard.writeText(memo.body);"
+                                    title="Copy">📑</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <template x-if="content.length == 0">
+                    <div class="memo-card">
+                        <p class="font-semibold">Empty. Completely empty.</p>
+                        <p>Write something and change the emptiness.</p>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+</div>  
 </body>
 </html>
