@@ -251,16 +251,21 @@
                         @keyup.esc="$el.value = '';setFixedBottomBoxHeight($el,$refs.content)"
                         @keyup.ctrl.enter="$nextTick(() => $refs.postMemoButton.click());"
                         placeholder="Spit it out!"></textarea>
-                    <button class="emoji-button self-end" x-ref="postMemoButton" title="Send" x-show="newMemo!=''"
-                        @click="if (post(newMemo)) 
-                            $refs.memoText.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape' }));">➡️</button>
+                        <button class="emoji-button self-end" x-ref="postMemoButton" title="Send" x-show="newMemo!=''"
+                        @click="if (post(newMemo)) {
+                            $refs.memoText.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape' }));
+                            window.scrollTo(0,0);
+                        }">➡️</button>
                 </div>
             </div>
             <div class="grid items-center sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:auto-rows-[5px] gap-3 w-full" 
                 x-ref="memoGrid" 
                 x-init="$nextTick(()=>resizeGridItems($el))"
                 @keyup.ctrl.i.window="$nextTick(()=>resizeGridItems($el))"
-                @resize.window="resetCustomSizeGridItems($el); await $nextTick(); setTimeout(resizeGridItems, 100, $el);">
+                @resize.window="resetCustomSizeGridItems($el); 
+                    await $nextTick(); 
+                    setTimeout(resizeGridItems, 100, $el);
+                    setTimeout(resizeGridItems, 250, $el);">
                 <template x-for="memo in content" :key="memo.id">
                     <div class="item group" @dblclick="toggleFullWidth($refs.memoGrid, $el)">
                         <div class="memo-card">
