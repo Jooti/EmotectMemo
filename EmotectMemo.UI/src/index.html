@@ -62,12 +62,35 @@
                     (item.children[0].getBoundingClientRect().height+rowGap)/(rowHeight+rowGap));
             item.style.gridRowEnd = "span "+rowSpan;
         }
-        const resizeGridItems = (memoGrid) => {
-
-            allItems = memoGrid.getElementsByClassName("item");
-            for(x=0;x<allItems.length;x++){
-                resizeGridItem(memoGrid, allItems[x]);
+        const resizeGridItems = (grid) => {
+            items = grid.getElementsByClassName("item");
+            for(x=0;x<items.length;x++){
+                let item = items[x];
+                resizeGridItem(grid, item);
             }
+        }
+        const resetCustomSizeGridItems = (grid) => {
+            items = grid.getElementsByClassName("item");
+            for(x=0;x<items.length;x++){
+                let item = items[x];
+                item.style.gridColumnEnd = "auto";
+                item.style.gridColumnStart = "auto";            }
+        }
+
+        const toggleFullWidth = (grid, item) => {
+            const numberOfCulumns = window.getComputedStyle(grid)
+                                         .getPropertyValue("grid-template-columns")
+                                         .split(" ").length;
+            const itemColSpanEnd = window.getComputedStyle(item).getPropertyValue("grid-column-end");
+            if (itemColSpanEnd == "auto" ){
+                item.style.gridColumnEnd = numberOfCulumns+1;
+                item.style.gridColumnStart = 1;
+            }
+            else{
+                item.style.gridColumnEnd = "auto";
+                item.style.gridColumnStart = "auto";
+            }
+            resizeGridItems(grid);
         }
     </script>
     <script src="js/emocrypt.js"></script>
@@ -237,9 +260,9 @@
                 x-ref="memoGrid" 
                 x-init="$nextTick(()=>resizeGridItems($el))"
                 @keyup.ctrl.i.window="$nextTick(()=>resizeGridItems($el))"
-                @resize.window="await $nextTick(); setTimeout(resizeGridItems, 100, $el);">
+                @resize.window="resetCustomSizeGridItems($el); await $nextTick(); setTimeout(resizeGridItems, 100, $el);">
                 <template x-for="memo in content" :key="memo.id">
-                    <div class="item">
+                    <div class="item group" @dblclick="toggleFullWidth($refs.memoGrid, $el)">
                         <div class="memo-card">
                             <span x-html="marked.parse(memo.body)"></span>
                             <div class="action-bar">
@@ -253,8 +276,8 @@
                 <template x-if="content.length == 0">
                     <div class="item">
                         <div class="memo-card">
-                            <p class="font-semibold">Empty. Completely empty.</p>
-                            <p>Write something and change the emptiness.</p>
+                            <span class="font-semibold">Empty. Completely empty.</span>
+                            <span>Write something and change the emptiness.</span>
                         </div>
                     </div>
                 </template>

@@ -70,7 +70,7 @@
     }
 
     .memo-card{
-        @apply card gap-3 p-4 items-start break-always h-fit;
+        @apply card gap-3 p-4 items-start break-always h-fit max-w-full;
     }
 
     .text{
@@ -88,32 +88,28 @@
     .card>p{
         @apply card-text-p;
     }
-
-    .memo-card>span p{
-        @apply md:text-left
-    }
     
     .memo-card>span p{
-        @apply whitespace-pre-line
+        @apply whitespace-pre-line md:text-left leading-normal
     }
 
     .memo-card>span h1{
-        @apply font-extrabold;
+        @apply font-extrabold md:text-2xl sm:text-xl leading-loose
     }
     .memo-card>span h2{
-        @apply font-bold
+        @apply font-bold md:text-xl sm:text-lg leading-loose
     }
     .memo-card>span h3{
-        @apply font-semibold
+        @apply font-semibold md:text-lg sm:text-base leading-loose
     }
     .memo-card>span a{
         @apply underline
     }
     .memo-card>span ol{
-        @apply list-decimal list-inside ps-3
+        @apply list-decimal list-inside ps-3 leading-loose
     }
     .memo-card>span ul{
-        @apply list-disc list-inside ps-3
+        @apply list-disc list-inside ps-3 leading-loose
     }
     .memo-card>span blockquote{
         @apply ps-3
