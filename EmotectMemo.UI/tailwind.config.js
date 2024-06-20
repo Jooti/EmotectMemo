@@ -27,7 +27,8 @@ module.exports = {
       }
     },
     fontFamily:{
-      body: ['Montserrat']
+      body: ['Montserrat'],
+      mono: ['ui-monospace', 'SFMono-Regular', 'Consolas']
     }
   },
   plugins: [],

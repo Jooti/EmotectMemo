@@ -82,18 +82,47 @@
     }
 
     .card-text-p{
-        @apply flex flex-row sm:text-left md:text-center
+        @apply block sm:text-left md:text-center
     }
 
-    .card p{
+    .card>p{
         @apply card-text-p;
     }
 
-    .memo-card p{
+    .memo-card>span p{
         @apply md:text-left
     }
+    
+    .memo-card>span p{
+        @apply whitespace-pre-line
+    }
 
-    .card h2{
+    .memo-card>span h1{
+        @apply font-extrabold;
+    }
+    .memo-card>span h2{
+        @apply font-bold
+    }
+    .memo-card>span h3{
+        @apply font-semibold
+    }
+    .memo-card>span a{
+        @apply underline
+    }
+    .memo-card>span ol{
+        @apply list-decimal list-inside ps-3
+    }
+    .memo-card>span ul{
+        @apply list-disc list-inside ps-3
+    }
+    .memo-card>span blockquote{
+        @apply ps-3
+    }
+    .memo-card>span code{
+        @apply font-mono ps-3
+    }
+
+    .card>h2{
         @apply card-text-p font-semibold
     }
 

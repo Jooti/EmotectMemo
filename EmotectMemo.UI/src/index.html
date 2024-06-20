@@ -71,6 +71,7 @@
         }
     </script>
     <script src="js/emocrypt.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <title>EmotectMemo</title>
 </head>
 <body x-data="" class="body">
@@ -240,7 +241,7 @@
                 <template x-for="memo in content" :key="memo.id">
                     <div class="item">
                         <div class="memo-card">
-                            <p class="whitespace-pre-line" x-text="memo.body"></p>
+                            <span x-html="marked.parse(memo.body)"></span>
                             <div class="action-bar">
                                 <button class="emoji-button" @click="deleteMemo(memo.id); $dispatch('memoChange')" title="Delete">🗑️</button>
                                 <button class="emoji-button" @click="navigator.clipboard.writeText(memo.body);"
