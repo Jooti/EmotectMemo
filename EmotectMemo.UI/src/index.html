@@ -103,7 +103,7 @@
     <!-- Header -->
     <div class="app-header">
         <h1 class="app-title">
-            Emotect Memo
+            <a href="/">Emotect Memo</a>
         </h1>         
         <button class="emoji-button" @click="toggleMode()" x-text="otherModeEmoji">🌘</button>
     </div>
@@ -122,7 +122,7 @@
             </div>
             <template x-if="currentPage == PAGES.HOME" >
                 <div class="card" x-data="{EmowordName: ''}">
-                    <div class="text-start">
+                    <div class="text-start-mdcenter">
                         <h2>
                             Emoji Protected Memo                            
                         </h2>
@@ -162,7 +162,7 @@
             <template x-if="currentPage == PAGES.NEW">
                 <div x-data="{step: 'emoword'}" class="card">
                     <!-- Setup your Emoword -->
-                    <div class="text-start" x-show="step == 'emoword'">   
+                    <div class="text-start-mdcenter" x-show="step == 'emoword'">   
                         <p>
                             It's an empty or a new EmotectMemo page, the decision is yours to make. 
                         </p>
@@ -187,7 +187,7 @@
     
 
                     <!-- Comfirm your Emoword -->
-                    <div class="text-start" x-show="step == 'confirm'">   
+                    <div class="text-start-mdcenter" x-show="step == 'confirm'">   
                         <h2>
                             Remember! Remember!
                         </h2>
@@ -269,7 +269,7 @@
                 <template x-for="memo in content" :key="memo.id">
                     <div class="item group" @dblclick="toggleFullWidth($refs.memoGrid, $el)">
                         <div class="memo-card">
-                            <span x-html="marked.parse(memo.body)"></span>
+                            <span dir="auto" x-html="marked.parse(memo.body)"></span>
                             <div class="action-bar">
                                 <button class="emoji-button" @click="deleteMemo(memo.id); $dispatch('memoChange')" title="Delete">🗑️</button>
                                 <button class="emoji-button" @click="navigator.clipboard.writeText(memo.body);"

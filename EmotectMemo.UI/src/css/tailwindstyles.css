@@ -70,27 +70,36 @@
     }
 
     .memo-card{
-        @apply card gap-3 p-4 items-start break-always h-fit max-w-full;
+        @apply w-full bg-emotral-0 border border-emotral-10 flex flex-col
+        pt-6 pb-6 pl-3 pr-3 rounded-lg 
+        dark:bg-emotral-90 dark:border-emotral-80 
+        gap-3 p-4 items-start break-always h-fit max-w-full;
     }
 
     .text{
         @apply flex flex-col items-center content-stretch gap-2;
     }
 
-    .text-start{
+    .text-start-mdcenter{
         @apply text sm:justify-start md:justify-center;
     }
 
     .card-text-p{
-        @apply block sm:text-left md:text-center
+        @apply sm:text-left md:text-center
     }
 
-    .card>p{
+    .text-start-mdcenter>p{
         @apply card-text-p;
     }
     
+    .memo-card>span{
+        @apply w-full
+    }
+    .memo-card>span *{
+        @apply justify-items-start text-start w-full 
+    }
     .memo-card>span p{
-        @apply whitespace-pre-line md:text-left leading-normal
+        @apply whitespace-pre-line md:text-start leading-normal
     }
 
     .memo-card>span h1{
@@ -118,7 +127,7 @@
         @apply font-mono ps-3
     }
 
-    .card>h2{
+    .text-start-mdcenter>h2{
         @apply card-text-p font-semibold
     }
 
