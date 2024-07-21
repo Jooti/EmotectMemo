@@ -166,3 +166,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+
+#production and staging docker compose
+docker-compose.production*.yml
+docker-compose.dev*.yml
