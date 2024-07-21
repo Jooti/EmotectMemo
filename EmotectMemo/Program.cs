@@ -29,10 +29,14 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
                           policy =>
                           {
-                              policy.WithOrigins("http://localhost:9090",
-                                                  "https://emotect.microj.ir")
-                                                  .AllowAnyHeader()
-                                                  .AllowAnyMethod();
+                            policy.WithOrigins("http://localhost:9090")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                            if (System.Environment.GetEnvironmentVariable("FRONTEND_URL") != null){
+                                policy.WithOrigins(System.Environment.GetEnvironmentVariable("FRONTEND_URL")!)
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod();
+                            }
                           });
 });
 
@@ -66,15 +70,6 @@ var indexKeys = Builders<Memo>.IndexKeys.Ascending("Key");
 var indexModel = new CreateIndexModel<Memo>(indexKeys, indexOptions);
 
 await mongodb.GetCollection<Memo>("memo").Indexes.CreateOneAsync(indexModel);
-///
-
-var sampleTodos = new Todo[] {
-    new(1, "Walk the dog"),
-    new(2, "Do the dishes", DateOnly.FromDateTime(DateTime.Now)),
-    new(3, "Do the laundry", DateOnly.FromDateTime(DateTime.Now.AddDays(1))),
-    new(4, "Clean the bathroom"),
-    new(5, "Clean the car", DateOnly.FromDateTime(DateTime.Now.AddDays(2)))
-};
 
 app.MapGet("/", () =>
 {
@@ -147,42 +142,35 @@ app.MapPost("/{key}", async (IMongoDatabase db,
     var memoCollection = db.GetCollection<Memo>("memo");
     var memo = await (await memoCollection.FindAsync(x => x.Key == key)).FirstOrDefaultAsync();
     MemoContent memoContent = new MemoContent(){ Body = memoDto.Body};
-    if (memo is null)
+    try
     {
-        try
+        if (memo is null)
         {
-            await memoCollection.InsertOneAsync(new Memo() { 
-                Key = key, SecretKey = secretKey, Content = 
-                [memoContent] });
-            return Results.Ok(new {id = memoContent.Id});
+                await memoCollection.InsertOneAsync(new Memo() { 
+                    Key = key, SecretKey = secretKey, Content = 
+                    [memoContent] });
+                return Results.Ok(new {id = memoContent.Id});
         }
-        catch(Exception ex)
+        else
         {
-            logger.LogError(ex, $"Post called key:{key}, secret key: {secretKey}");
+            if (memo.SecretKey != secretKey)
+            {
+                return Results.Unauthorized();
+            }
+            var update = Builders<Memo>.Update.Push<MemoContent>(m => m.Content,
+                        new MemoContent() { Body = memoDto.Body });
+            var result = await memoCollection
+                .FindOneAndUpdateAsync(x => x.Key == key, update);
+                return Results.Ok(new {id = memoContent.Id});
         }
     }
-    else
+    catch(Exception ex)
     {
-        if (memo.SecretKey != secretKey)
-        {
-            return Results.Unauthorized();
-        }
-        var update = Builders<Memo>.Update.Push<MemoContent>(m => m.Content,
-                    new MemoContent() { Body = memoDto.Body });
-        var result = await memoCollection
-            .FindOneAndUpdateAsync(x => x.Key == key, update);
-            return Results.Ok(new {id = memoContent.Id});
+        logger.LogError(ex, $"Post called key:{key}");
     }
     return Results.BadRequest();
 });
 
-
-//var todosApi = app.MapGroup("/todos");
-//todosApi.MapGet("/", () => sampleTodos);
-//todosApi.MapGet("/{id}", (int id) =>
-//    sampleTodos.FirstOrDefault(a => a.Id == id) is { } todo
-//        ? Results.Ok(todo)
-//        : Results.NotFound());
 
 app.Run();
 

@@ -8,12 +8,12 @@ services:
 
   emotectmemo:
     environment:
-      ASPNETCORE_ENVIRONMENT: "Production"
-      FRONTEND_URL: "https://emotect.microj.ir"
+      ASPNETCORE_ENVIRONMENT: "Development"
+      FRONTEND_URL: "http://localhost:9090"
       DATABASE_NAME: "emotectdb"
       MONGODB_URL: "mongodb://madmin:misd43dqm98daj9fa93ds983@mongodb:27017/myDb?authSource=admin"
 
   emotectmemosite:
     build: 
       args:
-        - EMOTECTAPI=https://emotapi.microj.ir
+        - EMOTECTAPI=http://localhost:62000

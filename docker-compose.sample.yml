@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  nosql: 
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "<MongoAdmin>"
+      MONGO_INITDB_ROOT_PASSWORD: "<MongoPassword>"
+
+  emotectmemo:
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      FRONTEND_URL: "http://localhost:9090" #change to https://yourdomain.com if you use reverce proxy.
+      DATABASE_NAME: "emotectdb"
+      MONGODB_URL: "mongodb://<MongoAdmin>:<MongoPassword>@mongodb:27017/myDb?authSource=admin"
+
+  emotectmemosite:
+    build: 
+      args:
+        - EMOTECTAPI=http://localhost:62000  #change to emotect memo backend service url (eg. https://api.yourdomain.com) if you use reverce proxy.
