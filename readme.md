@@ -20,7 +20,7 @@ The following steps to host Emotect Memo on your server:
 2. Edit .yml file: there are two .yml files, the configurations you most likely are about to change are in docker-compose.sample.dev, you need to rename it to something like docker-compose.production.dev and edit it to your needs.
 
     ```
-    cd cd EmotectMemo/
+    cd EmotectMemo/
     cp docker-compose.sample.yml docker-compose.production.yml
     vim docker-compose.production.yml
     ```
