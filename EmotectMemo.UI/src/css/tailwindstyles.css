@@ -35,7 +35,7 @@
         @apply flex-shrink-0 font-semibold text-sm
     }
     .content{
-        @apply flex flex-col flex-nowrap items-center content-stretch justify-end 
+        @apply flex flex-col flex-nowrap items-center content-stretch justify-between md:h-lvh h-svh 
         gap-8 self-center w-full pl-3 pr-3 md:pl-20 md:pr-20;
     }
     .button{
@@ -189,4 +189,7 @@
                     focus:shadow-none focus:outline-none active:border-0;
     }
     
+    .github-logo{
+        @apply flex flex-row items-start content-stretch justify-start mb-8
+    }
   }

@@ -159,6 +159,11 @@
 
                 </div>
             </template>
+            <template x-if="currentPage == PAGES.HOME" >
+                <div class="github-logo">
+                    <a href="https://github.com/Jooti/EmotectMemo"><img src="img/github.svg" width="32" height="32" /></a>
+                </div>
+            </template>
             <template x-if="currentPage == PAGES.NEW">
                 <div x-data="{step: 'emoword'}" class="card">
                     <!-- Setup your Emoword -->
