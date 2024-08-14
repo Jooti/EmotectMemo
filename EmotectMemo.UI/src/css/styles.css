@@ -641,7 +641,7 @@ video {
   flex-wrap: nowrap;
   align-content: stretch;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 2rem;
   align-self: center;
   padding-left: 0.75rem;
@@ -1332,7 +1332,14 @@ video {
   flex-direction: row;
   align-content: stretch;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: center;
+}
+
+.home-content {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .visible {
@@ -1363,6 +1370,10 @@ video {
   display: none;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .w-full {
   width: 100%;
 }
@@ -1385,6 +1396,10 @@ video {
 
 .items-center {
   align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
 }
 
 .gap-3 {
