@@ -121,7 +121,7 @@
                 <img :src="darkMode?currentPage.darkIcon:currentPage.icon" width="164" height="164" />
             </div>
             <template x-if="currentPage == PAGES.HOME" >
-                <div class="home-content justify-between h-full">
+                <div class="home-content">
                     <div class="card" x-data="{EmowordName: ''}">
                         <div class="text-start-mdcenter">
                             <h2>
@@ -162,8 +162,6 @@
                         <a href="https://github.com/Jooti/EmotectMemo"><img src="img/github.svg" width="32" height="32" /></a>
                     </div>
                 </div>
-            </template>
-            <template x-if="currentPage == PAGES.HOME" >
             </template>
             <template x-if="currentPage == PAGES.NEW">
                 <div x-data="{step: 'emoword'}" class="card">
