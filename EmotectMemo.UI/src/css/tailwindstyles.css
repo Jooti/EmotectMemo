@@ -35,8 +35,8 @@
         @apply flex-shrink-0 font-semibold text-sm
     }
     .content{
-        @apply flex flex-col flex-nowrap items-center content-stretch justify-end 
-        gap-8 self-center w-full pl-3 pr-3 md:pl-20 md:pr-20;
+        @apply flex flex-col flex-nowrap items-center content-stretch justify-start
+        gap-8 self-center w-full pl-3 pr-3 md:pl-20 md:pr-20 md:h-lvh h-svh;
     }
     .button{
         @apply min-w-36 max-w-44 md:w-64 md:max-w-64 h-12 cursor-pointer hover:rounded-none delay-75 duration-500
@@ -189,4 +189,10 @@
                     focus:shadow-none focus:outline-none active:border-0;
     }
     
+    .github-logo{
+        @apply flex flex-row items-start content-stretch justify-center mb-8
+    }
+    .home-content{
+        @apply flex flex-col  justify-between h-full
+    }
   }

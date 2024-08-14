@@ -121,42 +121,46 @@
                 <img :src="darkMode?currentPage.darkIcon:currentPage.icon" width="164" height="164" />
             </div>
             <template x-if="currentPage == PAGES.HOME" >
-                <div class="card" x-data="{EmowordName: ''}">
-                    <div class="text-start-mdcenter">
-                        <h2>
-                            Emoji Protected Memo                            
-                        </h2>
-                        <p>
-                            EmotectMemo is a minimal end to end encrypted text/note sharing app, protected by Emoji passwords.
-                        </p>
-                        <p>
-                            EmotectMemo is password protected but it has no username. The data is stored both encrypted and anonymous. Each page has its own unique URL and Emoword. Anyone knowing both, is the owner of the page.
-                        </p>
-                        <p>
-                            No kind of recovery Emoword or URL recovery is available. EmotectMemo stores no data to be able to verify your ownership.
-                        </p>
-                        <p>
-                            Type EmotectMemo name to make or view its content.
-                        </p>
-                    </div>
-                    <div class="over-input-label">
-                        <label class="flex flex-row" for="emoword">
-                            EmotectMemo name
-                        </label>
-                        <div class="input-button-row group">
-                            <span x-text=`${location.host}/`></span>
-                            <input type="text" class="no-scroll-text-area pl-0" x-model="EmowordName"
-                                @keyup.esc="$el.value = ''"
-                                @keyup.enter="$nextTick(() => $refs.redirectButton.click());"
-                                placeholder="Name"></textarea>
+                <div class="home-content">
+                    <div class="card" x-data="{EmowordName: ''}">
+                        <div class="text-start-mdcenter">
+                            <h2>
+                                Emoji Protected Memo
+                            </h2>
+                            <p>
+                                EmotectMemo is a minimal end to end encrypted text/note sharing app, protected by Emoji passwords.
+                            </p>
+                            <p>
+                                EmotectMemo is password protected but it has no username. The data is stored both encrypted and anonymous. Each page has its own unique URL and Emoword. Anyone knowing both, is the owner of the page.
+                            </p>
+                            <p>
+                                No kind of recovery Emoword or URL recovery is available. EmotectMemo stores no data to be able to verify your ownership.
+                            </p>
+                            <p>
+                                Type EmotectMemo name to make or view its content.
+                            </p>
                         </div>
+                        <div class="over-input-label">
+                            <label class="flex flex-row" for="emoword">
+                                EmotectMemo name
+                            </label>
+                            <div class="input-button-row group">
+                                <span x-text=`${location.host}/`></span>
+                                <input type="text" class="no-scroll-text-area pl-0" x-model="EmowordName"
+                                    @keyup.esc="$el.value = ''"
+                                    @keyup.enter="$nextTick(() => $refs.redirectButton.click());"
+                                    placeholder="Name"></textarea>
+                            </div>
+                        </div>
+                        <button :disabled="EmowordName==''" class="primary-button" x-ref="redirectButton"
+                            @click="location.href = `${location.origin}/${EmowordName}`"
+                            @keyup.enter.window="$nextTick(() => $el.click())">
+                            Go
+                        </button>
                     </div>
-                    <button :disabled="EmowordName==''" class="primary-button" x-ref="redirectButton"
-                        @click="location.href = `${location.origin}/${EmowordName}`" 
-                        @keyup.enter.window="$nextTick(() => $el.click())">
-                        Go
-                    </button>
-
+                    <div class="github-logo">
+                        <a href="https://github.com/Jooti/EmotectMemo"><img src="img/github.svg" width="32" height="32" /></a>
+                    </div>
                 </div>
             </template>
             <template x-if="currentPage == PAGES.NEW">
