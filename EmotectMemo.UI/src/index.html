@@ -26,17 +26,12 @@
             return {
                 darkMode: false,
                 init(){
-                    this.darkMode=localStorage.getItem(darkModeLocalStorageKey)=='true';
                     if (localStorage.getItem(darkModeLocalStorageKey) == undefined){
-                        function activateDarkMode() {
-                            debugger;
-                        }
-
-                        // MediaQueryList
                         const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
-
-                        // recommended method for newer browsers: specify event-type as first argument
-                        darkModePreference.addEventListener("change", e => e.matches && activateDarkMode());
+                        this.darkMode = darkModePreference.matches;
+                    }
+                    else{
+                        this.darkMode=localStorage.getItem(darkModeLocalStorageKey)=='true';
                     }
                 },
                 get mode(){
