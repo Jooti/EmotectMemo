@@ -8,6 +8,11 @@ const Memos = ()=>{
         emoword: "",
         decrypted: false,
         emowordIsIncorrect: false,
+        HEADER:{
+            title: 'Emotect Memo',
+            icon: 'img/emotect.svg',
+            darkIcon: 'img/darkemotect.svg'
+        },
         PAGES: {
             LOADING: {key: 'loading', icon: '', darkIcon: ''}, 
             HOME: {key: 'home', icon: '', darkIcon: ''}, 
