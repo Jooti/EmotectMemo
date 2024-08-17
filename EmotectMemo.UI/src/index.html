@@ -26,7 +26,13 @@
             return {
                 darkMode: false,
                 init(){
-                    this.darkMode=localStorage.getItem(darkModeLocalStorageKey)=='true';
+                    if (localStorage.getItem(darkModeLocalStorageKey) == undefined){
+                        const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
+                        this.darkMode = darkModePreference.matches;
+                    }
+                    else{
+                        this.darkMode=localStorage.getItem(darkModeLocalStorageKey)=='true';
+                    }
                 },
                 get mode(){
                     return this.darkMode?'dark':'';
@@ -95,6 +101,8 @@
     </script>
     <script src="js/emocrypt.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="icon" type="image/svg+xml" href="favicon.png" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/svg+xml" href="darkfavicon.png" media="(prefers-color-scheme: dark)" />
     <title>EmotectMemo</title>
 </head>
 <body x-data="" class="body">
@@ -103,7 +111,10 @@
     <!-- Header -->
     <div class="app-header">
         <h1 class="app-title">
-            <a href="/">Emotect Memo</a>
+            <a href="/" class="app-title gap-3">
+                <img class="flex" :src="darkMode?HEADER.darkIcon:HEADER.icon" width="24" height="40" :alt="HEADER.title">
+                <span class="flex" x-text="HEADER.title">Emotect Memo</span>
+            </a>
         </h1>         
         <button class="emoji-button" @click="toggleMode()" x-text="otherModeEmoji">🌘</button>
     </div>
@@ -162,6 +173,8 @@
                         <a href="https://github.com/Jooti/EmotectMemo"><img src="img/github.svg" width="32" height="32" /></a>
                     </div>
                 </div>
+            </template>
+            <template x-if="currentPage == PAGES.HOME" >
             </template>
             <template x-if="currentPage == PAGES.NEW">
                 <div x-data="{step: 'emoword'}" class="card">

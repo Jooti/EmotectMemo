@@ -32,7 +32,7 @@
         @apply justify-between-row items-center gap-4 p-3 md:pl-20 md:pr-20
     }
     .app-title{
-        @apply flex-shrink-0 font-semibold text-sm
+        @apply flex-shrink-0 font-semibold text-sm flex flex-row items-center justify-start gap-3
     }
     .content{
         @apply flex flex-col flex-nowrap items-center content-stretch justify-start

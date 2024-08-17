@@ -627,7 +627,11 @@ video {
 }
 
 .app-title {
+  display: flex;
   flex-shrink: 0;
+  flex-direction: row;
+  align-items: center;
+
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 600;
@@ -1140,6 +1144,7 @@ video {
 .emoword-text-input::placeholder {
   opacity: 0.5;
 }
+
 
 .justify-center-row {
   display: flex;
