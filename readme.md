@@ -8,7 +8,7 @@ No kind of Emoword or URL recovery is available. EmotectMemo stores no data to v
 The demo of the application is available on emotect.me.
 
 
-The demo of the application is avaiable on [emotect.me]. 
+The demo of the application is avaiable on [emotectme.jooti.net]. 
 
 Self Host
 ------
@@ -80,5 +80,5 @@ We didn't want to send the encryption key to the server but then there was a pro
 
 
 
-[Emotect.me]: https://emotect.me
+[emotectme.jooti.net]: https://emotectme.jooti.net/
 [AES-GCM]: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt#aes-gcm
